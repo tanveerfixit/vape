@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vape Order Builder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-100 text-slate-800">
+
+<header class="bg-white shadow px-6 py-4">
+  <h1 class="text-xl font-bold">Vape Supplier Order Builder</h1>
+  <p class="text-sm text-slate-500">Frontend only • Copy & Paste Order</p>
+</header>
+
+<main class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+  <!-- LEFT: PRODUCT SELECTION -->
+  <section class="lg:col-span-2 space-y-4">
+
+    <!-- PRODUCT SELECT -->
+    <div class="bg-white rounded shadow p-4">
+      <h2 class="font-semibold mb-3">Add Product</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+        <select id="category" class="border p-2 rounded"></select>
+        <select id="brand" class="border p-2 rounded"></select>
+        <select id="line" class="border p-2 rounded"></select>
+        <input id="flavour" placeholder="Flavour (type manually)"
+          class="border p-2 rounded">
+      </div>
+
+      <div class="flex gap-3">
+        <input id="qty" type="number" min="1" value="1"
+          class="border p-2 rounded w-24">
+        <button onclick="addToOrder()"
+          class="bg-green-600 text-white px-4 py-2 rounded">
+          Add to Order
+        </button>
+      </div>
+    </div>
+
+    <!-- CURRENT ORDER -->
+    <div class="bg-white rounded shadow p-4">
+      <h2 class="font-semibold mb-2">Current Order</h2>
+
+      <table class="w-full text-sm">
+        <thead class="bg-slate-200">
+          <tr>
+            <th class="p-2 text-left">Category</th>
+            <th class="p-2 text-left">Brand</th>
+            <th class="p-2 text-left">Line</th>
+            <th class="p-2 text-left">Flavour</th>
+            <th class="p-2 text-right">Qty</th>
+          </tr>
+        </thead>
+        <tbody id="orderTable"></tbody>
+      </table>
+    </div>
+
+  </section>
+
+  <!-- RIGHT: COPY ORDER -->
+  <aside class="space-y-4">
+
+    <div class="bg-white rounded shadow p-4">
+      <h2 class="font-semibold mb-2">Order Sheet (Copy)</h2>
+
+      <textarea id="orderOutput" rows="12"
+        class="w-full border p-2 rounded text-sm"
+        placeholder="Order will appear here…"></textarea>
+
+      <button onclick="copyOrder()"
+        class="mt-3 w-full bg-blue-600 text-white py-2 rounded">
+        Copy Order
+      </button>
+
+      <p id="msg" class="mt-2 text-sm font-semibold"></p>
+    </div>
+
+  </aside>
+
+</main>
+
+<script>
+/* =========================
+   MASTER PRODUCT LIST
+========================= */
+const products = [
+  // ===============================
+  // DISPOSABLE VAPES
+  // ===============================
+  { category: "Disposable Vape", brand: "Lost Mary", line: "BM6000" },
+  { category: "Disposable Vape", brand: "Lost Mary", line: "OS5000" },
+
+  { category: "Disposable Vape", brand: "IVG", line: "Smart 5500" },
+  { category: "Disposable Vape", brand: "IVG", line: "Bar Plus" },
+
+  { category: "Disposable Vape", brand: "Elf Bar", line: "BC5000" },
+  { category: "Disposable Vape", brand: "Elf Bar", line: "BM600" },
+  { category: "Disposable Vape", brand: "Elf Bar", line: "TE6000" },
+
+  // ===============================
+  // POD SYSTEMS & DEVICES
+  // ===============================
+  { category: "Vape Device", brand: "Elf Bar", line: "ELFA Pod Kit" },
+  { category: "Vape Device", brand: "IVG", line: "Air 2-in-1 Device" },
+
+  // ===============================
+  // POD REFILLS
+  // ===============================
+  { category: "Pod Refill", brand: "Elf Bar", line: "ELFA Pods" },
+  { category: "Pod Refill", brand: "Lost Mary", line: "Tappo Pods" },
+
+  // ===============================
+  // NIC SALT E-LIQUIDS
+  // ===============================
+  { category: "E-Liquid (Nic Salt)", brand: "ELFLIQ", line: "Nic Salts Series" },
+  { category: "E-Liquid (Nic Salt)", brand: "MARYLIQ", line: "Nic Salts Series" },
+  { category: "E-Liquid (Nic Salt)", brand: "IVG", line: "Nic Salts" },
+  { category: "E-Liquid (Nic Salt)", brand: "Dinner Lady", line: "Nic Salts" },
+
+  // ===============================
+  // NICOTINE POUCHES
+  // ===============================
+  { category: "Nicotine Pouch", brand: "KILLA", line: "Slim Pouch" },
+  { category: "Nicotine Pouch", brand: "CUBA", line: "Slim Pouch" },
+  { category: "Nicotine Pouch", brand: "PABLO", line: "Slim Pouch" },
+  { category: "Nicotine Pouch", brand: "VELO", line: "Slim Pouch" },
+  { category: "Nicotine Pouch", brand: "ACE", line: "Slim Pouch" },
+
+  // ===============================
+  // HARDWARE & PARTS
+  // ===============================
+  { category: "Coil", brand: "Generic", line: "Replacement Coil" },
+  { category: "Battery", brand: "Generic", line: "18650 Battery" },
+  { category: "Battery", brand: "Generic", line: "21700 Battery" },
+  { category: "Accessory", brand: "Generic", line: "USB-C Charger" }
+];
+
+/* =========================
+   STATE
+========================= */
+let order = [];
+
+/* =========================
+   INIT DROPDOWNS
+========================= */
+const categoryEl = document.getElementById("category");
+const brandEl = document.getElementById("brand");
+const lineEl = document.getElementById("line");
+
+function unique(arr, key) {
+  return [...new Set(arr.map(i => i[key]))];
+}
+
+function init() {
+  fill(categoryEl, unique(products, "category"));
+  categoryEl.onchange = updateBrands;
+  brandEl.onchange = updateLines;
+  updateBrands();
+}
+
+function fill(el, values) {
+  el.innerHTML = values.map(v => `<option>${v}</option>`).join("");
+}
+
+function updateBrands() {
+  const brands = products.filter(p => p.category === categoryEl.value);
+  fill(brandEl, unique(brands, "brand"));
+  updateLines();
+}
+
+function updateLines() {
+  const lines = products.filter(p =>
+    p.category === categoryEl.value &&
+    p.brand === brandEl.value
+  );
+  fill(lineEl, unique(lines, "line"));
+}
+
+init();
+
+/* =========================
+   ORDER LOGIC
+========================= */
+function addToOrder() {
+  const flavour = document.getElementById("flavour").value.trim();
+  const qty = Number(document.getElementById("qty").value);
+
+  if (!flavour || qty <= 0) return;
+
+  order.push({
+    category: categoryEl.value,
+    brand: brandEl.value,
+    line: lineEl.value,
+    flavour,
+    qty
+  });
+
+  document.getElementById("flavour").value = "";
+  renderOrder();
+}
+
+function renderOrder() {
+  const table = document.getElementById("orderTable");
+  table.innerHTML = order.map(i => `
+    <tr class="border-t">
+      <td class="p-2">${i.category}</td>
+      <td class="p-2">${i.brand}</td>
+      <td class="p-2">${i.line}</td>
+      <td class="p-2">${i.flavour}</td>
+      <td class="p-2 text-right">${i.qty}</td>
+    </tr>
+  `).join("");
+
+  const text = [
+    "Category\tBrand\tProductLine\tFlavour\tQuantity",
+    ...order.map(i =>
+      `${i.category}\t${i.brand}\t${i.line}\t${i.flavour}\t${i.qty}`
+    )
+  ].join("\n");
+
+  document.getElementById("orderOutput").value = text;
+}
+
+function copyOrder() {
+  const out = document.getElementById("orderOutput");
+  out.select();
+  document.execCommand("copy");
+  msg.textContent = "✅ Order copied";
+  msg.className = "mt-2 text-green-600 font-semibold";
+}
+</script>
+
+</body>
+</html>
