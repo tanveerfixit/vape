@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Vape Order Builder</title>
+  <title>Vape Supplier Order Builder</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -11,15 +11,14 @@
 
 <header class="bg-white shadow px-6 py-4">
   <h1 class="text-xl font-bold">Vape Supplier Order Builder</h1>
-  <p class="text-sm text-slate-500">Frontend only • Copy & Paste Order</p>
+  <p class="text-sm text-slate-500">WhatsApp / SMS friendly order format</p>
 </header>
 
 <main class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-  <!-- LEFT: PRODUCT SELECTION -->
+  <!-- PRODUCT INPUT -->
   <section class="lg:col-span-2 space-y-4">
 
-    <!-- PRODUCT SELECT -->
     <div class="bg-white rounded shadow p-4">
       <h2 class="font-semibold mb-3">Add Product</h2>
 
@@ -27,8 +26,13 @@
         <select id="category" class="border p-2 rounded"></select>
         <select id="brand" class="border p-2 rounded"></select>
         <select id="line" class="border p-2 rounded"></select>
-        <input id="flavour" placeholder="Flavour (type manually)"
-          class="border p-2 rounded">
+
+        <div>
+          <input id="flavour" list="flavourList"
+            placeholder="Flavour (type or select)"
+            class="border p-2 rounded w-full">
+          <p id="flavourHint" class="text-xs text-slate-500 mt-1"></p>
+        </div>
       </div>
 
       <div class="flex gap-3">
@@ -41,16 +45,15 @@
       </div>
     </div>
 
-    <!-- CURRENT ORDER -->
+    <!-- ORDER TABLE -->
     <div class="bg-white rounded shadow p-4">
       <h2 class="font-semibold mb-2">Current Order</h2>
 
       <table class="w-full text-sm">
         <thead class="bg-slate-200">
           <tr>
-            <th class="p-2 text-left">Category</th>
-            <th class="p-2 text-left">Brand</th>
-            <th class="p-2 text-left">Line</th>
+            <th class="p-2 text-left">#</th>
+            <th class="p-2 text-left">Product</th>
             <th class="p-2 text-left">Flavour</th>
             <th class="p-2 text-right">Qty</th>
           </tr>
@@ -61,19 +64,18 @@
 
   </section>
 
-  <!-- RIGHT: COPY ORDER -->
-  <aside class="space-y-4">
+  <!-- COPY ORDER -->
+  <aside>
 
     <div class="bg-white rounded shadow p-4">
-      <h2 class="font-semibold mb-2">Order Sheet (Copy)</h2>
+      <h2 class="font-semibold mb-2">Shareable Order</h2>
 
-      <textarea id="orderOutput" rows="12"
-        class="w-full border p-2 rounded text-sm"
-        placeholder="Order will appear here…"></textarea>
+      <textarea id="orderOutput" rows="18"
+        class="w-full border p-2 rounded text-sm"></textarea>
 
       <button onclick="copyOrder()"
         class="mt-3 w-full bg-blue-600 text-white py-2 rounded">
-        Copy Order
+        Copy for WhatsApp
       </button>
 
       <p id="msg" class="mt-2 text-sm font-semibold"></p>
@@ -84,75 +86,36 @@
 </main>
 
 <script>
-/* =========================
-   MASTER PRODUCT LIST
-========================= */
+/* PRODUCT DATABASE */
 const products = [
-  // ===============================
-  // DISPOSABLE VAPES
-  // ===============================
   { category: "Disposable Vape", brand: "Lost Mary", line: "BM6000" },
-  { category: "Disposable Vape", brand: "Lost Mary", line: "OS5000" },
-
   { category: "Disposable Vape", brand: "IVG", line: "Smart 5500" },
-  { category: "Disposable Vape", brand: "IVG", line: "Bar Plus" },
-
   { category: "Disposable Vape", brand: "Elf Bar", line: "BC5000" },
-  { category: "Disposable Vape", brand: "Elf Bar", line: "BM600" },
-  { category: "Disposable Vape", brand: "Elf Bar", line: "TE6000" },
-
-  // ===============================
-  // POD SYSTEMS & DEVICES
-  // ===============================
-  { category: "Vape Device", brand: "Elf Bar", line: "ELFA Pod Kit" },
-  { category: "Vape Device", brand: "IVG", line: "Air 2-in-1 Device" },
-
-  // ===============================
-  // POD REFILLS
-  // ===============================
-  { category: "Pod Refill", brand: "Elf Bar", line: "ELFA Pods" },
-  { category: "Pod Refill", brand: "Lost Mary", line: "Tappo Pods" },
-
-  // ===============================
-  // NIC SALT E-LIQUIDS
-  // ===============================
-  { category: "E-Liquid (Nic Salt)", brand: "ELFLIQ", line: "Nic Salts Series" },
-  { category: "E-Liquid (Nic Salt)", brand: "MARYLIQ", line: "Nic Salts Series" },
-  { category: "E-Liquid (Nic Salt)", brand: "IVG", line: "Nic Salts" },
-  { category: "E-Liquid (Nic Salt)", brand: "Dinner Lady", line: "Nic Salts" },
-
-  // ===============================
-  // NICOTINE POUCHES
-  // ===============================
-  { category: "Nicotine Pouch", brand: "KILLA", line: "Slim Pouch" },
-  { category: "Nicotine Pouch", brand: "CUBA", line: "Slim Pouch" },
-  { category: "Nicotine Pouch", brand: "PABLO", line: "Slim Pouch" },
-  { category: "Nicotine Pouch", brand: "VELO", line: "Slim Pouch" },
-  { category: "Nicotine Pouch", brand: "ACE", line: "Slim Pouch" },
-
-  // ===============================
-  // HARDWARE & PARTS
-  // ===============================
-  { category: "Coil", brand: "Generic", line: "Replacement Coil" },
-  { category: "Battery", brand: "Generic", line: "18650 Battery" },
-  { category: "Battery", brand: "Generic", line: "21700 Battery" },
-  { category: "Accessory", brand: "Generic", line: "USB-C Charger" }
+  { category: "E-Liquid (Nic Salt)", brand: "ELFLIQ", line: "Nic Salts Series" }
 ];
 
-/* =========================
-   STATE
-========================= */
+/* FLAVOUR SUGGESTIONS */
+const flavourSuggestions = [
+  "Orange", "Banana Ice", "Blue Razz Lemonade",
+  "Blueberry Sour Raspberry", "Cherry Cola",
+  "Mango Ice", "Strawberry Ice", "Watermelon Ice"
+];
+
+/* STATE */
 let order = [];
 
-/* =========================
-   INIT DROPDOWNS
-========================= */
-const categoryEl = document.getElementById("category");
-const brandEl = document.getElementById("brand");
-const lineEl = document.getElementById("line");
+/* INIT SELECTORS */
+const categoryEl = category;
+const brandEl = brand;
+const lineEl = line;
+const flavourEl = flavour;
+const flavourHint = document.getElementById("flavourHint");
 
 function unique(arr, key) {
   return [...new Set(arr.map(i => i[key]))];
+}
+function fill(el, values) {
+  el.innerHTML = values.map(v => `<option>${v}</option>`).join("");
 }
 
 function init() {
@@ -161,77 +124,78 @@ function init() {
   brandEl.onchange = updateLines;
   updateBrands();
 }
-
-function fill(el, values) {
-  el.innerHTML = values.map(v => `<option>${v}</option>`).join("");
-}
-
 function updateBrands() {
-  const brands = products.filter(p => p.category === categoryEl.value);
-  fill(brandEl, unique(brands, "brand"));
+  fill(brandEl, unique(products.filter(p => p.category === categoryEl.value), "brand"));
   updateLines();
 }
-
 function updateLines() {
-  const lines = products.filter(p =>
-    p.category === categoryEl.value &&
-    p.brand === brandEl.value
-  );
-  fill(lineEl, unique(lines, "line"));
+  fill(lineEl, unique(products.filter(p =>
+    p.category === categoryEl.value && p.brand === brandEl.value
+  ), "line"));
 }
 
-init();
+/* FLAVOUR LIST */
+const dl = document.createElement("datalist");
+dl.id = "flavourList";
+dl.innerHTML = flavourSuggestions.map(f => `<option value="${f}">`).join("");
+document.body.appendChild(dl);
 
-/* =========================
-   ORDER LOGIC
-========================= */
+flavourEl.addEventListener("input", () => {
+  const v = flavourEl.value.toLowerCase();
+  flavourHint.textContent =
+    v && !flavourSuggestions.some(f => f.toLowerCase().includes(v))
+      ? "New flavour will be added as entered"
+      : "";
+});
+
+/* ORDER LOGIC */
 function addToOrder() {
-  const flavour = document.getElementById("flavour").value.trim();
-  const qty = Number(document.getElementById("qty").value);
-
-  if (!flavour || qty <= 0) return;
+  if (!flavourEl.value.trim()) return;
 
   order.push({
     category: categoryEl.value,
     brand: brandEl.value,
     line: lineEl.value,
-    flavour,
-    qty
+    flavour: flavourEl.value.trim(),
+    qty: Number(qty.value)
   });
 
-  document.getElementById("flavour").value = "";
+  flavourEl.value = "";
   renderOrder();
 }
 
 function renderOrder() {
-  const table = document.getElementById("orderTable");
-  table.innerHTML = order.map(i => `
+  orderTable.innerHTML = order.map((i, idx) => `
     <tr class="border-t">
-      <td class="p-2">${i.category}</td>
-      <td class="p-2">${i.brand}</td>
-      <td class="p-2">${i.line}</td>
+      <td class="p-2">${idx + 1}</td>
+      <td class="p-2">${i.brand} ${i.line}</td>
       <td class="p-2">${i.flavour}</td>
       <td class="p-2 text-right">${i.qty}</td>
     </tr>
   `).join("");
 
   const text = [
-    "Category\tBrand\tProductLine\tFlavour\tQuantity",
-    ...order.map(i =>
-      `${i.category}\t${i.brand}\t${i.line}\t${i.flavour}\t${i.qty}`
+    "🧾 Vape Order",
+    "",
+    ...order.map((i, idx) =>
+      `${idx + 1}) ${i.brand} ${i.line}\n` +
+      `   • Category: ${i.category}\n` +
+      `   • Flavour: ${i.flavour}\n` +
+      `   • Qty: ${i.qty}\n`
     )
   ].join("\n");
 
-  document.getElementById("orderOutput").value = text;
+  orderOutput.value = text;
 }
 
 function copyOrder() {
-  const out = document.getElementById("orderOutput");
-  out.select();
+  orderOutput.select();
   document.execCommand("copy");
-  msg.textContent = "✅ Order copied";
-  msg.className = "mt-2 text-green-600 font-semibold";
+  msg.textContent = "✅ Order copied for WhatsApp";
+  msg.className = "text-green-600 font-semibold mt-2";
 }
+
+init();
 </script>
 
 </body>
