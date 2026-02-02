@@ -124,18 +124,74 @@ const products = [
 /* FLAVOUR SUGGESTIONS */
 // Added missing flavours found in images: Fizzy Cherry, Pineapple Ice, Triple Melon, etc.
 const flavourSuggestions = [
-  "Lemon Lime", "Pink Lemonade", "Orange", "Blood Orange", "Grapefruit", "Lemon Ice",
-  "Blue Razz Lemonade", "Blueberry", "Blueberry Ice", "Blueberry Sour Raspberry", 
-  "Mixed Berries", "Blackcurrant", "Blackcurrant Ice", "Raspberry", "Raspberry Ice",
-  "Strawberry Ice", "Strawberry Kiwi", "Strawberry Raspberry", "Strawberry Watermelon", "Strawberry Banana",
-  "Mango", "Mango Ice", "Pineapple Ice", "Kiwi Passion Fruit Guava", "Passion Fruit", "Peach Ice", "Peach Mango", "Watermelon Ice",
-  "Grape", "Grape Ice", "Green Apple", "Sour Apple", "Double Apple",
-  "Cherry Cola", "Cola Ice", "Energy Drink", "Pink Energy",
-  "Menthol", "Fresh Mint", "Spearmint", "Cool Mint", "Ice Mint",
-  "Banana Ice", "Banana Strawberry", "Cotton Candy", "Bubblegum",
-  "Summer Grape", "Tropical Punch", "Rainbow Candy", "Strawberry Raspberry Cherry Ice",
-  "Fizzy Cherry", "Triple Melon", "Pineapple Cola", "Blue Razz Cherry", "Blueberry Kiwi", "Forest Berries"
+  // Citrus & Lemonade
+  "Lemon Lime", "Lemon Ice", "Lemon Tart",
+  "Pink Lemonade", "Blue Razz Lemonade", "Strawberry Lemonade",
+  "Orange", "Blood Orange", "Orange Ice",
+  "Grapefruit", "Citrus Ice",
+
+  // Berry Core
+  "Blueberry", "Blueberry Ice", "Blueberry Sour Raspberry",
+  "Raspberry", "Raspberry Ice",
+  "Strawberry", "Strawberry Ice",
+  "Mixed Berries", "Forest Berries",
+  "Blackcurrant", "Blackcurrant Ice",
+  "Blueberry Kiwi", "Blueberry Raspberry",
+
+  // Strawberry Variants (Very High Demand in IE)
+  "Strawberry Kiwi", "Strawberry Raspberry",
+  "Strawberry Watermelon", "Strawberry Banana",
+  "Strawberry Cherry", "Strawberry Grape",
+
+  // Tropical & Exotic
+  "Mango", "Mango Ice",
+  "Pineapple", "Pineapple Ice",
+  "Kiwi Passion Fruit Guava",
+  "Passion Fruit", "Guava Ice",
+  "Peach", "Peach Ice", "Peach Mango",
+  "Papaya", "Lychee Ice",
+  "Tropical Punch",
+
+  // Apple & Grape
+  "Green Apple", "Green Apple Ice",
+  "Sour Apple", "Double Apple",
+  "Grape", "Grape Ice", "Summer Grape",
+
+  // Melon & Watermelon
+  "Watermelon", "Watermelon Ice",
+  "Triple Melon", "Honeydew Melon",
+
+  // Drinks & Soda (Top Sellers)
+  "Cola", "Cola Ice", "Cherry Cola",
+  "Energy Drink", "Pink Energy",
+  "Pineapple Cola",
+
+  // Ice & Mint (Critical Category)
+  "Menthol", "Fresh Mint", "Cool Mint",
+  "Spearmint", "Peppermint",
+  "Ice Mint", "Mint Ice",
+
+  // Banana & Creamy
+  "Banana", "Banana Ice",
+  "Banana Strawberry",
+  "Vanilla Ice Cream", "Custard",
+
+  // Candy & Sweet
+  "Bubblegum", "Cotton Candy",
+  "Rainbow Candy",
+  "Gummy Bear",
+  "Sour Blue Razz",
+  "Sour Cherry",
+  "Fizzy Cherry",
+
+  // Complex / Hybrid Blends
+  "Blue Razz Cherry",
+  "Strawberry Raspberry Cherry Ice",
+  "Cherry Raspberry Lime",
+  "Berry Ice",
+  "Tropical Ice"
 ];
+
 
 /* STATE */
 let order = [];
